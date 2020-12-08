@@ -1,59 +1,48 @@
 const Discord = require('discord.js');
 const config = require('./config.json');
-const axios = require('axios');
+const fs = require('fs');
 
-const client = new Discord.Client();
-const prefix = "%";
 
-client.on("message", function(message) {
+const bot = new Discord.Client();
+bot.commands = new Discord.Collection();
+
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+	bot.commands.set(command.name, command);
+}
+
+bot.on('ready', () => {
+  console.info(`Logged in as ${bot.user.tag}!`);
+});
+
+bot.on("message", function(message) {
+  let prefixes = JSON.parse(fs.readFileSync("./prefixes.json","utf8"));
+  
+  
+  if(!prefixes[message.guild.id]) {
+    prefixes[message.guild.id]= {
+      prefixes:config.prefix
+    };
+  }
+  
+  let prefix = prefixes[message.guild.id].prefixes
+
   //author message est un bot ?
-  if (message.author.bot) return;
-  if (!message.content.startsWith(prefix)) return;
+  if (!message.content.startsWith(prefix) || message.author.bot) return;
 
   const commandBody = message.content.slice(prefix.length);
   const args = commandBody.split(' ');
   const command = args.shift();
 
-  switch(command) {
-    case 'joke':
-      if (parseInt(args[0])) {
-        
-        //with id
-        axios.get("http://api.icndb.com/jokes/"+args)
-        .then(response => message.reply(` ${response.data.value.joke}`))
-        .catch(error => console.log(error));
-      
-      } else if (args[0]) {
+  if (!bot.commands.has(command)) return;
 
-        //with categorie
-        axios.get("http://api.icndb.com/jokes/random/?limitTo="+args)
-        .then(response => message.reply(` ${response.data.value.joke}`))
-        .catch(error => console.log(error));
-
-      } else {
-
-        //with nothing
-        axios.get("http://api.icndb.com/jokes/random")
-        .then(response => message.reply(` ${response.data.value.joke}`))
-        .catch(error => console.log(error));
-      }
-      break;
-
-    case 'jokeCount':
-      axios.get("http://api.icndb.com/jokes/count")
-      .then(response => message.reply(`Number of jokes : ${response.data.value}`))
-      .catch(error => console.log(error));
-      break;
-    
-    case 'jokeCategories':
-      axios.get("http://api.icndb.com/categories")
-      .then(response => message.reply(`Categories : ${response.data.value}`))
-      .catch(error => console.log(error));
-      break;
-
-    default:
-      message.reply('command not implement, sorry !')
+  try {
+    bot.commands.get(command).execute(message, args);
+  } catch (error) {
+    console.error(error);
+    message.reply('there was an error trying to execute that command!');
   }
 });
 
-client.login(config.BOT_TOKEN);
+bot.login(config.BOT_TOKEN);
