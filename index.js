@@ -19,15 +19,7 @@ bot.on('ready', () => {
 
 bot.on("message", function(message) {
   //get prefix
-  let prefixes = JSON.parse(fs.readFileSync("./prefixes.json","utf8"));
-  
-  if(!prefixes[message.guild.id]) {
-    prefixes[message.guild.id]= {
-      prefixes:config.prefix
-    };
-  }
-  
-  let prefix = prefixes[message.guild.id].prefixes
+  let prefix = JSON.parse(fs.readFileSync("./config.json","utf8")).prefix;
 
   //author message est un bot ?
   if (!message.content.startsWith(prefix) || message.author.bot) return;
