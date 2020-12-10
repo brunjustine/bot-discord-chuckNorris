@@ -2,10 +2,11 @@ const Discord = require('discord.js');
 const config = require('./config.json');
 const fs = require('fs');
 
-
+//start Bot
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 
+//get all commands
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
@@ -17,8 +18,8 @@ bot.on('ready', () => {
 });
 
 bot.on("message", function(message) {
+  //get prefix
   let prefixes = JSON.parse(fs.readFileSync("./prefixes.json","utf8"));
-  
   
   if(!prefixes[message.guild.id]) {
     prefixes[message.guild.id]= {
@@ -31,12 +32,15 @@ bot.on("message", function(message) {
   //author message est un bot ?
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
+  //analize the user command
   const commandBody = message.content.slice(prefix.length);
   const args = commandBody.split(' ');
   const command = args.shift();
 
+  //command doesn't exist
   if (!bot.commands.has(command)) return;
 
+  //exec command
   try {
     bot.commands.get(command).execute(message, args);
   } catch (error) {
