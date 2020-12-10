@@ -7,6 +7,4 @@ services:
     container_name : myDiscordBot
     ports:
       - "80:80"
-    volumes:
-      - .:/app
     restart: always
