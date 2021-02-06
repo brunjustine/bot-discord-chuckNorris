@@ -7,7 +7,8 @@ Creation of a discord bot able to interact with the Chuck Norris Jokes API.
 [Chuck Norris API](http://www.icndb.com/api/)
 
 --------
-###Set Up
+
+### Set Up
 You will nedd to create a file config.json with a strucuture like this :
 
 ```javascript
@@ -17,13 +18,15 @@ You will nedd to create a file config.json with a strucuture like this :
 }
 ```
 ---------
-###Run 
+
+### Run 
 ```console
 foo@bar:~$ npm install
 foo@bar:~$ npm start
 ```
 ----------
-###Bot Commands 
+
+### Bot Commands 
 * %joke => Return a random joke from the Chuck Norris API.
 * %jokeCount => Return the number of jokes from the Chuck Norris API.
 * %joke [category] => Return a random joke from the category entered if it exists.
